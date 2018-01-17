@@ -35,13 +35,22 @@ def decrypt_aes_cbc(message, key, iv = (chr(0) * 16).encode()):
         Decrypted message
     '''
     block_size = 16
-    enc_message = []
+    enc_message = [padding(message[i:i+block_size]) for i in range(0, len(message), block_size)]
     dec_message = []
     dec_string = iv
-    for i in range(0, len(message), block_size):
-        enc_message.append(padding(message[i:i+block_size]))
     for i in range(0, len(enc_message)):
         decrypted = xor(decrypt_aes_ecb(enc_message[i], key), dec_string)
         dec_message.append(decrypted.decode())
         dec_string = enc_message[i]
     return dec_message
+
+def detect_ecb(message):
+    '''
+    Args:
+        message (bytes): The message to check
+    Return:
+        Wheter the encryption was made in ECB mode
+    '''
+    block_size = 16
+    enc_message = [message[i:i+block_size] for i in range(0, len(message), block_size)]
+    return len(enc_message) != len(set(enc_message))

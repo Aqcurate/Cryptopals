@@ -1,6 +1,9 @@
-from block_crypto import padding
+from block_crypto import detect_ecb
 
-string = "YELLOW SUBMARINE".encode()
-padding_size = 20
 
-print(padding(string, padding_size))
+with open("08.txt", 'r') as f:
+    encrypted = [bytes.fromhex(line.strip("\n")) for line in f.readlines()]
+
+for line in encrypted:
+    if detect_ecb(line):
+        print(line.hex())
