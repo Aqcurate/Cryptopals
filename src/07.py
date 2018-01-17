@@ -8,4 +8,4 @@ filename = "07.txt"
 with open(filename, 'r') as f:
     encrypted = b64decode(''.join(f.readlines()))
 
-print(decrypt_aes_ecb(encrypted, key))
+print(decrypt_aes_ecb(encrypted, key).decode())

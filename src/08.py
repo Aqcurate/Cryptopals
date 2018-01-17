@@ -1,6 +1,6 @@
+from block_crypto import padding
 
-string = "YELLOW SUBMARINE"
+string = "YELLOW SUBMARINE".encode()
 padding_size = 20
-padding_digit = padding_size - len(string)
 
-print(("{}{}".format(string, chr(padding_digit) * padding_digit)).encode('utf-8'))
+print(padding(string, padding_size))
