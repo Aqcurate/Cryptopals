@@ -25,6 +25,18 @@ def decrypt_aes_ecb(message, key):
     msg = cipher.decrypt(message)
     return msg
 
+def encrypt_aes_ecb(message, key):
+    '''
+    Args:
+        message (bytes): The message to be encrypted
+        key (bytes): The key to use in the encryption
+    Return:
+        Encrypt message
+    '''
+    cipher = AES.new(key, AES.MODE_ECB)
+    msg = cipher.encrypt(message)
+    return msg
+
 def decrypt_aes_cbc(message, key, iv = (chr(0) * 16).encode()):
     '''
     Args:
@@ -43,6 +55,25 @@ def decrypt_aes_cbc(message, key, iv = (chr(0) * 16).encode()):
         dec_message.append(decrypted.decode())
         dec_string = enc_message[i]
     return dec_message
+
+def encrypt_aes_cbc(message, key, iv = (chr(0) * 16).encode()):
+    '''
+    Args:
+        message (bytes): The message to be encrypted
+        key (bytes): The key to use in the encrypted
+        iv (optional bytes): The initialization vector for CBC mode
+    Return:
+        Encrypted message
+    '''
+    block_size = 16
+    dec_message = [padding(message[i:i+block_size]) for i in range(0, len(message), block_size)]
+    enc_message = []
+    enc_string = iv
+    for i in range(0, len(dec_message)):
+        encrypted = encrypt_aes_ecb(xor(dec_message[i], enc_string), key)
+        enc_message.append(encrypted)
+        enc_string = enc_message[i]
+    return enc_message
 
 def detect_ecb(message):
     '''
