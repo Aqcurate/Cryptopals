@@ -14,7 +14,7 @@ def encryption_oracle(a):
         a = encrypt_aes_ecb(a, key)
     else:
         print('CBC')
-        a = encrypt_aes_cbc(a, key)
+        a = b''.join(encrypt_aes_cbc(a, key))
     
     return detect_ecb(a)
 
