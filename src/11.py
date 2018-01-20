@@ -14,9 +14,12 @@ def encryption_oracle(a):
         a = encrypt_aes_ecb(a, key)
     else:
         print('CBC')
-        a = b''.join(encrypt_aes_cbc(a, key))
+        a = encrypt_aes_cbc(a, key)
     
     return detect_ecb(a)
 
-print(encryption_oracle('stanislaaaaav'))
+if (encryption_oracle('a'*48)):
+    print("ECB detected")
+else:
+    print("CBC detected")
 

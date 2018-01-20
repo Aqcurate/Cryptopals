@@ -13,7 +13,7 @@ def padding(string, padding_size=16):
     padding = (chr(padding_digit) * padding_digit).encode()
     return string + padding
 
-def decrypt_aes_ecb(message, key):
+def decrypt_aes_ecb(message, key, block_size = 16):
     '''
     Args:
         message (bytes): The message to be decrypted
@@ -22,10 +22,10 @@ def decrypt_aes_ecb(message, key):
         Decrypted message
     '''
     cipher = AES.new(key, AES.MODE_ECB)
-    msg = cipher.decrypt(message)
-    return msg
+    msg = b''.join([padding(message[i:i+block_size]) for i in range(0, len(message), block_size)])
+    return cipher.decrypt(msg)
 
-def encrypt_aes_ecb(message, key):
+def encrypt_aes_ecb(message, key, block_size = 16):
     '''
     Args:
         message (bytes): The message to be encrypted
@@ -34,8 +34,8 @@ def encrypt_aes_ecb(message, key):
         Encrypt message
     '''
     cipher = AES.new(key, AES.MODE_ECB)
-    msg = cipher.encrypt(message)
-    return msg
+    msg = b''.join([padding(message[i:i+block_size]) for i in range(0, len(message), block_size)])
+    return cipher.encrypt(msg)
 
 def decrypt_aes_cbc(message, key, iv = (chr(0) * 16).encode()):
     '''
@@ -54,7 +54,7 @@ def decrypt_aes_cbc(message, key, iv = (chr(0) * 16).encode()):
         decrypted = xor(decrypt_aes_ecb(enc_message[i], key), dec_string)
         dec_message.append(decrypted.decode())
         dec_string = enc_message[i]
-    return dec_message
+    return ''.join(dec_message)
 
 def encrypt_aes_cbc(message, key, iv = (chr(0) * 16).encode()):
     '''
@@ -73,7 +73,7 @@ def encrypt_aes_cbc(message, key, iv = (chr(0) * 16).encode()):
         encrypted = encrypt_aes_ecb(xor(dec_message[i], enc_string), key)
         enc_message.append(encrypted)
         enc_string = enc_message[i]
-    return enc_message
+    return b''.join(enc_message)
 
 def detect_ecb(message):
     '''
