@@ -2,34 +2,41 @@ from block_crypto import encrypt_aes_ecb, encrypt_aes_cbc, detect_ecb
 from base64 import b64decode
 import os
 
-chars = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'.,;:(){}[]<>? "
-variations = {}
+chars = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'.,;:(){}[]<>? -\n"
 
+# Open unknown secret
 with open("12.txt", 'r') as f:
-    secret = b64decode(''.join(f.readlines())).replace(b"\n", b"")
+    secret = b64decode(''.join(f.readlines()))
+
+# Generate unknown key
 key = os.urandom(16)
 
+# Find block size
 discovered = False
 string = "A".encode()
-
-def encryption_oracle(a):
-    return encrypt_aes_ecb(a+secret, key)
-
 while not discovered:
-    if detect_ecb(encryption_oracle(string)):
-        block_length = (len(string) // 2) - 1
+    if detect_ecb(encrypt_aes_ecb(string+secret, key)):
+        block_length = len(string) // 2
         discovered = True
     else:
         string += "A".encode()
 
-answer = []
-
-for i in range(20):
-    string = b''.join(["A".encode() for _ in range(block_length - i)])
+# Break with chosen plaintext
+answer = b''
+variations = {}
+i = 0
+while True:
+    string = b'A'*((block_length - i - 1) % block_length)
+    # Generate a dictionary of the encrypted outputs of last byte in block
     for char in chars:
-        variations[char] = string + ''.join(answer).encode() + char.encode()
+        variations[char] = encrypt_aes_ecb(string+answer+char.encode(), key) 
+    # Check if secret matches anything in dictionary
     for char in chars:
-        if detect_ecb(encryption_oracle(variations[char] + string)):
-            answer.append(char)
-
-print(''.join(answer))
+        if variations[char] in encrypt_aes_ecb(string+secret, key):
+            answer += char.encode()
+            i += 1
+            break
+    # If not, we are done
+    else:
+        break
+print(answer.decode())

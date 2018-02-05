@@ -1,5 +1,4 @@
 from string import ascii_lowercase, printable
-from math import inf
 
 def english_chi_squared(a):
     letter_freq = {
@@ -36,7 +35,7 @@ def english_chi_squared(a):
 
     for c in a:
         if not c in printable.encode('UTF-8'):
-            return inf
+            return 1000*1000
 
     return sum([((letter_freq[l] - a.count(l.encode('UTF-8')))**2 / letter_freq[l])
             for l in ascii_lowercase])
