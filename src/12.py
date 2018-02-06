@@ -11,11 +11,14 @@ with open("12.txt", 'r') as f:
 # Generate unknown key
 key = os.urandom(16)
 
+def encryption_oracle(a):
+    return encrypt_aes_ecb(a+secret, key)
+
 # Find block size
 discovered = False
 string = "A".encode()
 while not discovered:
-    if detect_ecb(encrypt_aes_ecb(string+secret, key)):
+    if detect_ecb(encryption_oracle(string)):
         block_length = len(string) // 2
         discovered = True
     else:
@@ -29,10 +32,10 @@ while True:
     string = b'A'*((block_length - i - 1) % block_length)
     # Generate a dictionary of the encrypted outputs of last byte in block
     for char in chars:
-        variations[char] = encrypt_aes_ecb(string+answer+char.encode(), key) 
+        variations[char] = encrypt_aes_ecb(string+answer+char.encode()+secret, key) 
     # Check if secret matches anything in dictionary
     for char in chars:
-        if variations[char] in encrypt_aes_ecb(string+secret, key):
+        if variations[char][0:block_length*((i//16)+1)] in encryption_oracle(string):
             answer += char.encode()
             i += 1
             break
