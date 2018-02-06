@@ -1,4 +1,4 @@
-from block_crypto import encrypt_aes_ecb, encrypt_aes_cbc, detect_ecb
+from block_crypto import encrypt_aes_ecb, detect_ecb
 from base64 import b64decode
 import os
 
@@ -11,6 +11,7 @@ with open("12.txt", 'r') as f:
 # Generate unknown key
 key = os.urandom(16)
 
+# Target function
 def encryption_oracle(a):
     return encrypt_aes_ecb(a+secret, key)
 
@@ -26,16 +27,15 @@ while not discovered:
 
 # Break with chosen plaintext
 answer = b''
-variations = {}
 i = 0
 while True:
     string = b'A'*((block_length - i - 1) % block_length)
+    output = encryption_oracle(string)
     # Generate a dictionary of the encrypted outputs of last byte in block
-    for char in chars:
-        variations[char] = encryption_oracle(string+answer+char.encode())
     # Check if secret matches anything in dictionary
     for char in chars:
-        if variations[char][0:block_length*((i//16)+1)] in encryption_oracle(string):
+        test = encryption_oracle(string+answer+char.encode())
+        if test[0:block_length*((i//16)+1)] in output:
             answer += char.encode()
             i += 1
             break
