@@ -32,7 +32,7 @@ while True:
     string = b'A'*((block_length - i - 1) % block_length)
     # Generate a dictionary of the encrypted outputs of last byte in block
     for char in chars:
-        variations[char] = encrypt_aes_ecb(string+answer+char.encode()+secret, key) 
+        variations[char] = encryption_oracle(string+answer+char.encode())
     # Check if secret matches anything in dictionary
     for char in chars:
         if variations[char][0:block_length*((i//16)+1)] in encryption_oracle(string):
