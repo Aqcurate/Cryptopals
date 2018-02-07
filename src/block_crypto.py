@@ -21,9 +21,9 @@ def remove_pad(string):
         String without padding
     '''
     padding_size = string[-1]
-    removed = string.rstrip(chr(padding_size).encode())
-    print(padding_size)
-    if len(string) - len(removed) != padding_size:
+    padding = string[-1:]
+    removed = string[:-padding_size]
+    if string[-padding_size:].strip(padding) != b"":
         raise ValueError('Incorrect padding')
     return removed
 
