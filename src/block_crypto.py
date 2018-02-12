@@ -1,5 +1,6 @@
 from Crypto.Cipher import AES
 from xor import xor
+from struct import pack
 
 def padding(string, padding_size=16):
     '''
@@ -92,6 +93,25 @@ def encrypt_aes_cbc(message, key, iv = (chr(0) * 16).encode()):
         enc_message.append(encrypted)
         enc_string = enc_message[i]
     return b''.join(enc_message)
+
+def decrypt_aes_ctr(message, key, nounce = (chr(0) * 8).encode()):
+    '''
+    Args:
+        message (bytes): The message to be derypted
+        key (bytes): The key to use in the decryption
+        nounce (optional bytes): 8 byte little endian initialization
+    Return:
+        Decrypted message
+    '''
+    ans = b''
+    i = 0
+    for x in message:
+        if i % 16 == 0:
+            count = pack('<Q', i // 16)
+            keystream = encrypt_aes_ecb(nounce+count, key, False)
+        ans += bytes([x ^ keystream[i % 16]])
+        i += 1
+    return ans
 
 def detect_ecb(message):
     '''
