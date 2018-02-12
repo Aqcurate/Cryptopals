@@ -93,6 +93,28 @@ def encrypt_aes_cbc(message, key, iv = (chr(0) * 16).encode()):
         enc_string = enc_message[i]
     return b''.join(enc_message)
 
+def decrypt_aes_ctr(message, key, iv = (chr(0) * 16).encode()):
+    '''
+    Args:
+        message (bytes): The message to be derypted
+        key (bytes): The key to use in the decryption
+        iv (optional bytes): The initialization vector for CBC mode
+    Return:
+        Decrypted message
+    '''
+    ans = []
+    i = 0
+    keystream = encrypt_aes_ecb(iv, key, False)
+    for x in message:
+        ans.append(bytes([x ^ keystream[i]]))
+        if i >= 15:
+            iv = (chr(0) * 8 + chr(iv[8]+1) + chr(0)*7).encode()
+            keystream = encrypt_aes_ecb(iv, key, False)
+            i = 0
+            continue
+        i += 1
+    return ans
+
 def detect_ecb(message):
     '''
     Args:
